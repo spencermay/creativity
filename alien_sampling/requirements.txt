@@ -1,0 +1,33 @@
+# Core
+torch>=2.1.0
+torchvision>=0.16.0
+transformers>=4.36.0
+pillow>=10.0.0
+pandas>=2.0.0
+numpy>=1.24.0
+requests>=2.31.0
+tqdm>=4.65.0
+
+# Data storage
+pyarrow>=14.0.0
+
+# Training (LoRA / PEFT)
+accelerate>=0.25.0
+peft>=0.7.0
+datasets>=2.16.0
+sentencepiece>=0.1.99
+safetensors>=0.4.0
+
+# Evaluation
+scikit-learn>=1.3.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# NLP utilities
+nltk>=3.8.0
+
+# Configuration
+pyyaml>=6.0.0
+
+# Ollama client
+ollama>=0.4.0

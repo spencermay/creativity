@@ -1,0 +1,78 @@
+# Alien Recombination - Default Configuration
+
+seed: 42
+
+# Paths
+paths:
+  data_dir: ./data/processed
+  art_corpus: ./data/processed/art_corpus.txt
+  cog_corpus: ./data/processed/cog_corpus.txt
+  artworks_parquet: ./data/processed/artworks.parquet
+  artists_parquet: ./data/processed/artist_concepts.parquet
+  vocab_words: ./data/processed/vocab/vocab_words.json
+  vocab_embeddings: ./data/processed/vocab/vocab_embeddings.npy
+  art_model_dir: ./training/art_model/checkpoints
+  cog_model_dir: ./training/cog_model/checkpoints
+  output_dir: ./outputs
+
+# Models
+models:
+  clip_model: openai/clip-vit-base-patch32
+  base_model: google/gemma-3-4b  # HF name for local fine-tuning
+  ollama_text_model: gemma3:4b
+  ollama_image_model: x/flux2-klein:4b
+
+# Training
+training:
+  # LoRA hyperparameters
+  lora_r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  lora_target_modules:
+    - q_proj
+    - v_proj
+    - k_proj
+    - o_proj
+
+  # Training hyperparameters
+  learning_rate: 2.0e-4
+  num_epochs: 3
+  batch_size: 4
+  gradient_accumulation_steps: 4
+  max_seq_len: 128
+  warmup_ratio: 0.05
+  weight_decay: 0.01
+  save_steps: 500
+  logging_steps: 50
+
+# Generation
+generation:
+  temperature: 2.5
+  top_k: 50
+  top_p: 0.95
+  max_new_tokens: 64
+  num_candidates: 150
+  min_sequence_len: 5
+  max_sequence_len: 10
+
+# Alien sampling
+alien_sampling:
+  beta: 0.85
+  top_k_output: 5
+
+# Image generation
+image_generation:
+  prompt_template: "A painting that contains the concepts: {concepts}"
+  style_prompt_template: "A {style} painting that contains the concepts: {concepts}"
+  num_images_per_sequence: 1
+  seed: 42
+
+# Evaluation
+evaluation:
+  embedding_model: resnet152
+  embedding_batch_size: 32
+  vlm_comparison_prompt: >
+    As an art expert, please examine these two paintings and write a single sentence
+    indicating which image (Image A or Image B) is more novel, focusing specifically
+    on the novelty of concept combinations depicted. Reply with exactly "A" or "B"
+    followed by a brief explanation.

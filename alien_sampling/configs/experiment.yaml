@@ -1,0 +1,114 @@
+# Alien Recombination - Experiment Configuration
+# Use this for full experiment sweeps reproducing the paper's results.
+
+seed: 42
+
+# Experiment parameters
+experiment:
+  name: "alien_recombination_sweep"
+  
+  # Input seeds (paper uses 50 inputs, mix of 1-concept and 2-concept)
+  seeds:
+    - "insect"
+    - "mountain"
+    - "dragon"
+    - "wilderness"
+    - "castle"
+    - "ocean"
+    - "crystal"
+    - "volcano"
+    - "forest"
+    - "skeleton"
+    - "romanticism mountain"
+    - "impressionism landscape"
+    - "surrealism clock"
+    - "cubism guitar"
+    - "baroque angel"
+    - "expressionism storm"
+    - "realism portrait"
+    - "symbolism dream"
+    - "minimalism geometry"
+    - "renaissance garden"
+
+  # Temperature sweep (paper: 0.1 to 3.1 in steps of 0.3)
+  temperatures: [0.1, 0.4, 0.7, 1.0, 1.3, 1.6, 1.9, 2.2, 2.5, 2.8, 3.1]
+
+  # Beta sweep
+  betas: [0.5, 0.6, 0.7, 0.8, 0.85, 0.9, 0.95]
+
+  # Per-temperature settings
+  num_candidates_per_temperature: 150
+  top_k_per_condition: 5
+
+# Paths (override defaults for experiment runs)
+paths:
+  data_dir: ./data/processed
+  art_corpus: ./data/processed/art_corpus.txt
+  cog_corpus: ./data/processed/cog_corpus.txt
+  artworks_parquet: ./data/processed/artworks.parquet
+  artists_parquet: ./data/processed/artist_concepts.parquet
+  vocab_words: ./data/processed/vocab/vocab_words.json
+  vocab_embeddings: ./data/processed/vocab/vocab_embeddings.npy
+  art_model_dir: ./training/art_model/checkpoints
+  cog_model_dir: ./training/cog_model/checkpoints
+  output_dir: ./outputs
+  wikiart_embeddings: ./data/processed/wikiart_embeddings.npy
+
+# Models
+models:
+  clip_model: openai/clip-vit-base-patch32
+  base_model: google/gemma-3-4b
+  ollama_text_model: gemma3:4b
+  ollama_image_model: x/flux2-klein:4b
+
+# Training
+training:
+  lora_r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  lora_target_modules:
+    - q_proj
+    - v_proj
+    - k_proj
+    - o_proj
+  learning_rate: 2.0e-4
+  num_epochs: 3
+  batch_size: 4
+  gradient_accumulation_steps: 4
+  max_seq_len: 128
+  warmup_ratio: 0.05
+  weight_decay: 0.01
+  save_steps: 500
+  logging_steps: 50
+
+# Generation
+generation:
+  temperature: 2.5
+  top_k: 50
+  top_p: 0.95
+  max_new_tokens: 64
+  num_candidates: 150
+  min_sequence_len: 5
+  max_sequence_len: 10
+
+# Alien sampling
+alien_sampling:
+  beta: 0.85
+  top_k_output: 5
+
+# Image generation
+image_generation:
+  prompt_template: "A painting that contains the concepts: {concepts}"
+  style_prompt_template: "A {style} painting that contains the concepts: {concepts}"
+  num_images_per_sequence: 1
+  seed: 42
+
+# Evaluation
+evaluation:
+  embedding_model: resnet152
+  embedding_batch_size: 32
+  vlm_comparison_prompt: >
+    As an art expert, please examine these two paintings and write a single sentence
+    indicating which image (Image A or Image B) is more novel, focusing specifically
+    on the novelty of concept combinations depicted. Reply with exactly "A" or "B"
+    followed by a brief explanation.

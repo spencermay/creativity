@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Data files (large)
+data/raw/
+data/interim/
+data/processed/
+*.zip
+*.tar.gz
+*.parquet
+*.npy
+
+# Model outputs
+training/art_model/checkpoints/
+training/cog_model/checkpoints/
+outputs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets / local config overrides
+configs/local.yaml
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs
+*.log
+logs/
