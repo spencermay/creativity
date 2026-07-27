@@ -1,0 +1,84 @@
+# Creator-Appraiser: Fast Config (MNIST + DDPM + Autoencoder Appraiser)
+# Pre-training: ~15-20 min on CPU. Joint phase: ~5 min for 10 images.
+
+# ============================================================
+# Episode structure
+# ============================================================
+episode:
+  n_way: 3
+  k_shot: 1
+
+# ============================================================
+# Creator (DDPM diffusion model)
+# ============================================================
+creator:
+  img_channels: 1
+  img_size: 28
+  n_classes: 10
+  base_channels: 32             # Small UNet (555K params)
+  channel_mults: [1, 2]         # 2 levels (28→14→7)
+  time_emb_dim: 64
+  timesteps: 200                # Good for MNIST with cosine schedule
+  schedule: "cosine"            # Better quality than linear
+  sample_skip_steps: 5          # 200/5 = 40 denoising steps
+  guidance_scale: 2.0
+
+# ============================================================
+# Appraiser (autoencoder)
+# ============================================================
+appraiser:
+  hidden_dim: 64
+  latent_dim: 64
+  inner_lr: 0.01
+  inner_steps: 10
+
+# ============================================================
+# Reward shaping
+# ============================================================
+reward:
+  mu: 1.0
+  tau: 0.5
+
+# ============================================================
+# Meta-learning
+# ============================================================
+meta:
+  outer_lr_creator: 0.3         # Step size for ES noise update (larger ok for ES)
+  outer_lr_appraiser: 0.001
+  max_episodes: 10              # Number of creative images to generate
+  K: 50                         # Noise optimization steps per image
+  n_perturbations: 8            # ES population size per step
+  perturbation_std: 0.05        # Perturbation magnitude for ES
+
+# ============================================================
+# Data
+# ============================================================
+data:
+  dataset: "mnist"
+  root: "data"
+  img_size: 28
+  batch_size_diffusion: 64
+  max_pretrain_samples: 2000    # Small subset, more epochs (200/class is enough)
+
+# ============================================================
+# Training
+# ============================================================
+training:
+  device: "cpu"
+  seed: 42
+  creator_pretrain_epochs: 100  # Many passes over 2K samples (~34 min, cached)
+  appraiser_warmup_epochs: 30
+  log_interval: 5
+  save_interval: 500
+  eval_interval: 250
+  eval_episodes: 20
+  output_dir: "outputs/fast"
+
+# ============================================================
+# Experiment tracking
+# ============================================================
+wandb:
+  enabled: false
+  project: "creator-appraiser"
+  entity: null
+  run_name: "fast-mnist-ddpm"

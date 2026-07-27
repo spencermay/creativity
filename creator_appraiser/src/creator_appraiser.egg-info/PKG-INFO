@@ -1,0 +1,160 @@
+Metadata-Version: 2.4
+Name: creator-appraiser
+Version: 0.1.0
+Summary: Conceptual Creativity as Meta-Learning (Ren, 2026)
+Author: Spencer May
+License: MIT
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: torch>=2.0.0
+Requires-Dist: torchvision>=0.15.0
+Requires-Dist: higher==0.2.1
+Requires-Dist: pyyaml>=6.0
+Requires-Dist: numpy>=1.24.0
+Requires-Dist: tqdm>=4.65.0
+Requires-Dist: matplotlib>=3.7.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0; extra == "dev"
+Requires-Dist: ruff>=0.1.0; extra == "dev"
+Provides-Extra: tracking
+Requires-Dist: wandb>=0.15.0; extra == "tracking"
+
+# Creator-Appraiser: Conceptual Creativity as Meta-Learning
+
+A PyTorch implementation of the Creator-Appraiser framework from:
+
+> Ren (2026). *Seeking the Unfamiliar but Memorable: Conceptual Creativity as Meta-Learning.*
+
+This project implements the paper's core idea: framing conceptual creativity as a meta-learning problem where a **Creator** generates novel concepts that are initially unfamiliar (hard to classify) but ultimately memorable (easy to learn with few examples).
+
+## Overview
+
+The framework consists of two components trained jointly:
+
+1. **Creator** — A generative model that produces novel visual concepts (e.g., concept blends, novel category exemplars). It is trained to generate outputs that maximize a creativity objective.
+
+2. **Appraiser** — A MAML-style few-shot classifier that evaluates generated concepts for *memorability*. It performs gradient-based adaptation (inner loop) on a small support set, then measures classification performance on a query set.
+
+### Creativity Objective
+
+The Creator optimizes for concepts that are simultaneously:
+
+- **Unfamiliar (Novel):** Low pre-adaptation accuracy — the Appraiser cannot classify them before learning.
+- **Memorable (Learnable):** High post-adaptation accuracy — the Appraiser can quickly learn to recognize them after a few gradient steps.
+
+This "unfamiliar but memorable" criterion operationalizes a well-established notion from creativity research: truly creative ideas are surprising yet ultimately coherent and learnable.
+
+### Training Loop
+
+```
+for each meta-training episode:
+    1. Creator generates a batch of novel concepts (support + query sets)
+    2. Appraiser evaluates pre-adaptation accuracy on query set → novelty signal
+    3. Appraiser adapts on support set (MAML inner loop, k gradient steps)
+    4. Appraiser evaluates post-adaptation accuracy on query set → memorability signal
+    5. Compute losses: L_novelty + L_memorability + L_diversity
+    6. Update Creator (outer loop) to maximize creativity objective
+    7. Update Appraiser (outer loop) via standard MAML meta-update
+```
+
+## Project Structure
+
+```
+creator_appraiser/
+├── README.md
+├── pyproject.toml
+├── configs/
+│   └── default.yaml            # Hyperparameters and experiment config
+├── scripts/
+│   ├── train.py                # Main training entry point
+│   └── evaluate.py             # Evaluation and metric computation
+├── src/
+│   └── creator_appraiser/
+│       ├── __init__.py
+│       ├── creator.py          # Creator generative model
+│       ├── appraiser.py        # Appraiser (MAML-style classifier)
+│       ├── meta_learner.py     # Meta-learning training loop orchestration
+│       ├── losses.py           # Novelty, memorability, diversity losses
+│       ├── data.py             # Dataset loading and episode sampling
+│       └── metrics.py          # Creativity evaluation metrics
+└── tests/
+    └── __init__.py
+```
+
+## Installation
+
+```bash
+# Clone and install in editable mode
+cd creator_appraiser
+pip install -e .
+
+# Or install dependencies directly
+pip install -r requirements.txt
+```
+
+### Requirements
+
+- Python >= 3.10
+- PyTorch >= 2.0
+- higher (for differentiable inner-loop optimization)
+- torchvision
+- PyYAML
+- wandb (optional, for experiment tracking)
+
+## Usage
+
+### Training
+
+```bash
+# Train with default config
+python scripts/train.py --config configs/default.yaml
+
+# Override specific parameters
+python scripts/train.py --config configs/default.yaml \
+    --creator.latent_dim 128 \
+    --appraiser.inner_lr 0.01 \
+    --meta.outer_lr 0.001
+```
+
+### Evaluation
+
+```bash
+# Evaluate a trained model
+python scripts/evaluate.py --checkpoint outputs/run_001/best.pt \
+    --config configs/default.yaml
+```
+
+## Key Hyperparameters
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `appraiser.inner_lr` | MAML inner loop learning rate | 0.01 |
+| `appraiser.inner_steps` | Number of inner loop adaptation steps | 5 |
+| `meta.outer_lr` | Outer loop learning rate (both models) | 0.001 |
+| `creator.latent_dim` | Latent space dimensionality | 128 |
+| `loss.lambda_novelty` | Weight for novelty loss | 1.0 |
+| `loss.lambda_memorability` | Weight for memorability loss | 1.0 |
+| `loss.lambda_diversity` | Weight for diversity regularization | 0.1 |
+| `episode.n_way` | Number of classes per episode | 5 |
+| `episode.k_shot` | Support examples per class | 5 |
+| `episode.q_query` | Query examples per class | 15 |
+
+## Comparison to Other Creativity Metrics
+
+This implementation is designed to facilitate comparison with other computational creativity approaches:
+
+- **Novelty-only baselines:** Remove memorability loss to measure pure surprise/divergence.
+- **MAML few-shot baseline:** Standard MAML without the Creator, for measuring baseline learnability.
+- **Diversity metrics:** FID, LPIPS diversity, coverage metrics on generated concepts.
+- **Human evaluation:** Generate concepts and collect human creativity ratings for correlation analysis.
+
+## References
+
+- Ren (2026). Seeking the Unfamiliar but Memorable: Conceptual Creativity as Meta-Learning.
+- Finn et al. (2017). Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks.
+- Boden (2004). The Creative Mind: Myths and Mechanisms.
+
+## License
+
+Research use only. See the original paper for details on the method.

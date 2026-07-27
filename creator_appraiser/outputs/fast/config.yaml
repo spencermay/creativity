@@ -1,0 +1,52 @@
+appraiser:
+  hidden_dim: 64
+  inner_lr: 0.01
+  inner_steps: 10
+  latent_dim: 64
+creator:
+  base_channels: 32
+  channel_mults:
+  - 1
+  - 2
+  guidance_scale: 2.0
+  img_channels: 1
+  img_size: 28
+  n_classes: 10
+  sample_skip_steps: 5
+  schedule: cosine
+  time_emb_dim: 64
+  timesteps: 200
+data:
+  batch_size_diffusion: 64
+  dataset: mnist
+  img_size: 28
+  max_pretrain_samples: 2000
+  root: data
+episode:
+  k_shot: 1
+  n_way: 3
+meta:
+  K: 50
+  max_episodes: 10
+  n_perturbations: 8
+  outer_lr_appraiser: 0.001
+  outer_lr_creator: 0.3
+  perturbation_std: 0.05
+reward:
+  mu: 1.0
+  tau: 0.5
+training:
+  appraiser_warmup_epochs: 30
+  creator_pretrain_epochs: 100
+  device: cpu
+  eval_episodes: 20
+  eval_interval: 250
+  log_interval: 5
+  output_dir: outputs/fast
+  save_interval: 500
+  seed: 42
+wandb:
+  enabled: false
+  entity: null
+  project: creator-appraiser
+  run_name: fast-mnist-ddpm

@@ -1,0 +1,76 @@
+# Creator-Appraiser: Default Configuration (MNIST + DDPM + Autoencoder Appraiser)
+# Full training. Use CUDA/MPS for reasonable time.
+
+# ============================================================
+# Episode structure
+# ============================================================
+episode:
+  n_way: 5
+  k_shot: 1
+
+# ============================================================
+# Creator (DDPM diffusion model)
+# ============================================================
+creator:
+  img_channels: 1
+  img_size: 28
+  n_classes: 10
+  base_channels: 64
+  channel_mults: [1, 2, 4]
+  time_emb_dim: 128
+  timesteps: 1000
+  schedule: "linear"
+  sample_skip_steps: 10
+
+# ============================================================
+# Appraiser (Autoencoder)
+# ============================================================
+appraiser:
+  hidden_dim: 64
+  latent_dim: 128
+  inner_lr: 0.01
+  inner_steps: 10
+
+# ============================================================
+# Reward shaping
+# ============================================================
+reward:
+  mu: 1.0
+  tau: 0.5
+
+# ============================================================
+# Meta-learning
+# ============================================================
+meta:
+  outer_lr_creator: 0.0002
+  outer_lr_appraiser: 0.001
+  max_episodes: 10000
+
+# ============================================================
+# Data
+# ============================================================
+data:
+  root: "data"
+  img_size: 28
+  batch_size_diffusion: 64
+
+# ============================================================
+# Training
+# ============================================================
+training:
+  device: "mps"
+  seed: 42
+  creator_pretrain_epochs: 20
+  appraiser_warmup_epochs: 20
+  log_interval: 100
+  save_interval: 2000
+  eval_interval: 500
+  eval_episodes: 50
+  output_dir: "outputs"
+
+# ============================================================
+# Experiment tracking
+# ============================================================
+wandb:
+  enabled: false
+  project: "creator-appraiser"
