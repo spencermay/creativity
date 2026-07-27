@@ -125,7 +125,7 @@ class MetaLearner:
     # Phase 1: Creator (DDPM) pre-training
     # ==============================================================
 
-    def pretrain_creator(self, n_epochs: int | None = None, refresh_interval: int = 50) -> None:
+    def pretrain_creator(self, n_epochs: int | None = None, refresh_interval: int = 30) -> None:
         """Pre-train the DDPM Creator on MNIST with standard diffusion loss.
 
         Loads a fresh random subset of MNIST every `refresh_interval` epochs
