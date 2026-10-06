@@ -8,3 +8,5 @@ I was interested in implementing and improving the "Alien Sampling" paper becaus
 - I wanted to practice using LLMs and I ran some locally on a laptop.
 
 I wanted to implement the Creator-Appraiser framework because I think it gets closer to the heart of what meaningful ideation and generation is about. For chemical design for instance, we should make decisions in generation that fit our desired outcomes.
+
+_Each subdirectory has a more in-depth description of the contents of that implementation. A lot of credit to Claude, Gemini, ChatGPT for building most of the code, and helping with my personal research discovery process related to this project._
